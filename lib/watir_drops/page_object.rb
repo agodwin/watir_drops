@@ -2,6 +2,7 @@ require 'active_support/inflector'
 
 module WatirDrops
   class PageObject
+    include Watir::Waitable
 
     class << self
 
@@ -40,7 +41,6 @@ module WatirDrops
 
         define_method("#{name}=") do |val|
           watir_element = self.instance_exec &block
-          watir_element.wait_until_present
           case watir_element
           when Watir::Radio
             watir_element.set if val
@@ -50,10 +50,8 @@ module WatirDrops
             watir_element.select val
           when Watir::Button
             watir_element.click
-            # TODO - Email & Password types are not set to UserEditable in Watir
-          when Watir::Input
-            watir_element.wd.clear
-            watir_element.send_keys val
+          when Watir::TextField, Watir::TextArea
+            watir_element.set val if val
           else
             watir_element.click if val
           end
@@ -63,14 +61,7 @@ module WatirDrops
       end
 
       def visit(*args)
-        new.tap do |page|
-          page.goto(*args)
-          yield if block_given?
-        end
-      end
-
-      def use
-        new.tap { yield if block_given? }
+        new.tap { |page| page.goto(*args) }
       end
 
       def browser=(browser_input)
@@ -103,12 +94,21 @@ module WatirDrops
       end
     end
 
-    def title
-      browser.title
+    def inspect
+      '#<%s url=%s title=%s>' % [self.class, url.inspect, title.inspect]
+    end
+    alias selector_string inspect
+
+    def method_missing(method, *args, &block)
+      if @browser.respond_to?(method)
+        @browser.send(method, *args, &block)
+      else
+        super
+      end
     end
 
-    def url
-      browser.url
+    def respond_to_missing?(method, _include_all = false)
+      @browser.respond_to?(method) || super
     end
 
   end

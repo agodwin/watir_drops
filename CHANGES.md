@@ -1,3 +1,17 @@
+### 0.6.0 (2017-01-04)
+
+* move support for passing blocks into `#visit` from `PageObject` to `TrainingWheels`
+* move support for `#use` (prefer the `#new` method) from `PageObject` to `TrainingWheels`
+* require training_wheels file separately to use `TrainingWheels`
+
+### 0.5.8 (2016-12-30)
+
+* fix #fill_form issue for TextArea (thanks Tony Godwin!)
+
+### 0.5.7 (2016-09-21)
+
+* add support for Watir 6.0.0.betas
+
 ### 0.5.6 (2016-05-21)
 
 * add instance method for page_url on PageObject
